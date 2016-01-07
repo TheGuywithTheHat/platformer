@@ -3,9 +3,21 @@ import java.awt.event.KeyEvent;
 boolean isInDebug;
 private boolean[] keys;
 
+Controls controls = new Controls();
+
+class Controls {
+  int up = KeyEvent.VK_W;
+  int down = KeyEvent.VK_S;
+  int left = KeyEvent.VK_A;
+  int right = KeyEvent.VK_D;
+  int jump = KeyEvent.VK_SPACE;
+}
+
 void setupInput() {
   isInDebug = false;
   keys = new boolean[526];
+  
+  
 }
 
 void checkInput() {
