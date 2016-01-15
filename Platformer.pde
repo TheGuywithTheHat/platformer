@@ -4,11 +4,11 @@ Enemy[] enemies;
 Game game;
 
 void setup() {
-  size(1100, 600);
+  size(1900, 1000);
   textAlign(LEFT, TOP);
   
   setupInput();
-  game = new ChaseRunGame();
+  game = new Game();
 }
 
 void draw() {

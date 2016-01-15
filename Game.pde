@@ -1,6 +1,23 @@
 class Game {
+  Game() {
+    setup();
+  }
+  
   void update() {
-    
+    player.update();
+    for(Enemy enemy : enemies) {
+      enemy.update();
+    }
+  }
+  
+  void setup() {
+    setupMap();
+    player = new Player(100, 100);
+    enemies = new Enemy[] {
+        new Enemy(100, 100, Behavior.STAY),
+        new Enemy(900, mapSizeY - 64, Behavior.STAY),
+        new Enemy(1200, 100, Behavior.STAY),
+      };
   }
 }
 
