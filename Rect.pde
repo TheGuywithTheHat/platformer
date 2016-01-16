@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 class Rect {
   float x, y, sizeX, sizeY;
   color fillColor;
@@ -45,6 +47,48 @@ class Rect {
   boolean collides(float px, float py) {
     return px >= x && px <= x + sizeX && py >= y && py <= y + sizeY;
   }
+  
+  List<Rect> getCollisions(List<Rect> rects) {
+    List<Rect> collisions = new ArrayList();
+    for(Rect rect : rects) {
+      if(rect.collides(this)) {
+        collisions.add(rect);
+      }
+    }
+    
+    return collisions;
+  }
+  
+  List<Rect> getIntersections(List<Rect> rects) {
+    List<Rect> intersections = new ArrayList();
+    for(Rect rect : rects) {
+      if(rect.intersects(this)) {
+        intersections.add(rect);
+      }
+    }
+    
+    return intersections;
+  }
+  
+  /*List<Box> getCollisions() {
+    List<Rect> boxes = new ArrayList(map.length);
+    
+    for(Box box : map) {
+      boxes.add((Rect)(box));
+    }
+    
+    return getCollisions(boxes);
+  }
+  
+  List<Box> getIntersections() {
+    List<Rect> boxes = new ArrayList(map.length);
+    
+    for(Box box : map) {
+      boxes.add((Rect)(box));
+    }
+    
+    return getIntersections(boxes);
+  }*/
   
   List<Box> getCollisions() {
     List<Box> collisions = new ArrayList();
