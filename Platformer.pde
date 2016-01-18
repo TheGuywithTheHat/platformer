@@ -8,7 +8,7 @@ void setup() {
   textAlign(LEFT, TOP);
   
   setupInput();
-  game = new Game();
+  game = new ChaseRunGame();
 }
 
 void draw() {
@@ -18,6 +18,9 @@ void draw() {
 
 void update() {
   game.update();
+  for(int i = 0; i < particles.size(); i++) {
+    particles.get(i).update();
+  }
 }
 
 void render() {
@@ -31,6 +34,9 @@ void render() {
     enemy.draw();
   }
   player.draw();
+  for(Particle particle : particles) {
+    particle.draw();
+  }
   
   if(isInDebug) renderDebug();
 }
