@@ -119,4 +119,114 @@ class Rect {
     fill(fillColor);
     rect(x, y, sizeX, sizeY);
   }
+  
+  PVector getLineIntersection(float p0_x, float p0_y, float p1_x, float p1_y) {
+    PVector top =   getLineIntersection(p0_x, p0_y, p1_x, p1_y, x        , y        , x + sizeX, y        );
+    PVector bot =   getLineIntersection(p0_x, p0_y, p1_x, p1_y, x        , y + sizeY, x + sizeX, y + sizeY);
+    PVector left =  getLineIntersection(p0_x, p0_y, p1_x, p1_y, x        , y        , x        , y + sizeY);
+    PVector right = getLineIntersection(p0_x, p0_y, p1_x, p1_y, x + sizeX, y        , x + sizeX, y + sizeY);
+    
+    PVector intersection = null;
+    float dist = Float.MAX_VALUE;
+    
+    if(top != null) {
+      intersection = top;
+      dist = intersection.dist(new PVector(p0_x, p0_y));
+    }
+    if(bot != null && bot.dist(new PVector(p0_x, p0_y)) < dist) {
+      intersection = bot;
+      dist = intersection.dist(new PVector(p0_x, p0_y));
+    }
+    if(left != null && left.dist(new PVector(p0_x, p0_y)) < dist) {
+      intersection = left;
+      dist = intersection.dist(new PVector(p0_x, p0_y));
+    }
+    if(right != null && right.dist(new PVector(p0_x, p0_y)) < dist) {
+      intersection = right;
+      dist = intersection.dist(new PVector(p0_x, p0_y));
+    }
+    
+    return intersection;
+  }
+  
+  PVector getLineIntersection(float p0_x, float p0_y, float p1_x, float p1_y, float p2_x, float p2_y, float p3_x, float p3_y)
+  {
+    float s1_x = p1_x - p0_x;
+    float s1_y = p1_y - p0_y;
+    float s2_x = p3_x - p2_x;
+    float s2_y = p3_y - p2_y;
+
+    float s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+    float t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+    if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+    {
+      return new PVector(p0_x + (t * s1_x), p0_y + (t * s1_y));
+    }
+
+    return null; // No collision
+  }
+}
+
+
+
+
+
+
+class MovingRect extends Rect {
+  float vx, vy;
+  
+  MovingRect(float x, float y, float sizeX, float sizeY) {
+    super(x, y, sizeX, sizeY);
+  }
+  
+  void move() {
+    x += vx;
+    y += vy;
+  }
+}
+
+void spawnParticles(float x, float y, float vx, float vy, color fillColor, int number) {
+  particles.ensureCapacity(particles.size() + number);
+  for(int i = 0; i < number; i++) {
+    spawnParticle(x, y, vx, vy, fillColor);
+  }
+}
+
+void spawnParticle(float x, float y, float vx, float vy, color fillColor) {
+  particles.add(new Particle(x, y, vx, vy, fillColor));
+}
+
+class Particle extends MovingRect {
+  Particle(float x, float y, float vx, float vy, color fillColor) {
+    this(x, y, random(4, 7));
+    this.vx = vx + random(-2, 2);
+    this.vy = vy + random(-1, 1);
+    this.fillColor = fillColor;
+  }
+  
+  private Particle(float x, float y, float size) {
+    super(x, y, size, size);
+  }
+  
+  void update() {
+    vx *= 0.98;
+    vy += gravity / 2;
+    super.move();
+    if(x < -sizeX || x > mapSizeX + sizeX || y > mapSizeY + sizeY) {
+      particles.remove(this);
+    }
+  }
+  
+  void draw() {
+    pushMatrix();
+      noStroke();
+      fill(fillColor);
+      
+      translate(x, y);
+      rotate(x / 10);
+      
+      rect(-sizeX / 2, -sizeY / 2, sizeX, sizeY);
+    popMatrix();
+  }
 }

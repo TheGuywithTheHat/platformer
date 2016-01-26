@@ -3,6 +3,9 @@ Enemy[] enemies;
 
 Game game;
 
+float xOffset;
+float yOffset;
+
 void setup() {
   size(1900, 1000);
   textAlign(LEFT, TOP);
@@ -18,6 +21,23 @@ void draw() {
 
 void update() {
   game.update();
+  
+  for(int i = 0; i < particles.size(); i++) {
+    particles.get(i).update();
+  }
+  
+  xOffset = player.x - (width - player.sizeX) / 2;
+  yOffset = player.y - (height - player.sizeY) / 2;
+  
+  if(mousePressed) {
+    for(Enemy enemy : enemies) {
+      PVector intersection = enemy.getLineIntersection(xOffset + width / 2.0, yOffset + height / 2.0, mouseX + xOffset, mouseY + yOffset);
+      if(intersection != null) {
+        enemy.damage(1);
+        spawnParticles(intersection.x, intersection.y, 0, 0, enemy.fillColor, 1);
+      }
+    }
+  }
 }
 
 void render() {

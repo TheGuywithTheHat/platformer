@@ -27,6 +27,18 @@ class Character extends Rect {
     update();
   }
   
+  void damage(float damage) {
+    health -= damage;
+    //spawnParticles(x + sizeX / 2, y + sizeY / 2, 0, 0, fillColor, 4);
+    if(health <= 0) {
+      die();
+    }
+  }
+  
+  void die() {
+    //spawnParticles(x + sizeX / 2, y + sizeY / 2, 0, 0, fillColor, 32);
+  }
+  
   void jump() {
     vy = -jumpV;
     justJumped = true;
@@ -163,7 +175,7 @@ class Character extends Rect {
          
         if(y + min(vy, terminalV) > thePlatform.y) {
           y = thePlatform.y;
-          vy = 0;
+          vy = 0; //<>//
         }
         
         if(vy > -climbV && goUp) {
