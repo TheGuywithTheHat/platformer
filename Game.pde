@@ -62,14 +62,14 @@ class ChaseRunGame extends Game {
     }
     
     if(frameCount % (chaseLen + restLen) > restLen && chaser.intersects(runner)) {
-      runner.sizeY--;
-      if(runner.sizeY <= 0) {
-        try  {
+      runner.damage(2);
+      if(runner.health <= 0) {
+        /*try  {
           Thread.sleep(5000);
         } catch(InterruptedException e) {
           e.printStackTrace();
         }
-        game = new ChaseRunGame();
+        game = new ChaseRunGame();*/
       }
     }
   }

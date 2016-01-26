@@ -1,4 +1,6 @@
 Box[] map;
+ArrayList<Particle> particles;
+
 final float mapSizeX = 2000;
 final float mapSizeY = 1000;
 
@@ -24,6 +26,8 @@ void setupMap() {
       new Box(1500, 250, 20, 500),
       new Box(1700, 250, 20, 500)
     };
+  
+  particles = new ArrayList(0);
 }
 
 void drawMap() {
@@ -45,11 +49,12 @@ boolean pointCollides(float x, float y) {
 class Box extends Rect {
   Box(float x, float y, float sizeX, float sizeY) {
     super(x, y, sizeX, sizeY);
+    fillColor = 64;
   }
   
   void draw() {
-    stroke(0);
-    strokeWeight(0.2);
+    stroke(fillColor);
+    strokeWeight(1);
     fill(fillColor);
     rect(x, y, sizeX, sizeY);
   }
