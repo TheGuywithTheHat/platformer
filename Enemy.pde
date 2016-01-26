@@ -11,7 +11,7 @@ class Enemy extends Character {
   
   Enemy(float x, float y) {
     super(x, y);
-    fillColor = color(0, 255, 0);
+    fillColor = color(64, 64, 192);
     behavior = Behavior.STAY;
     
     vx = 0;

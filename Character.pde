@@ -1,8 +1,8 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.Math;
 
-class Character extends Rect {
-  float vx, vy;
+class Character extends MovingRect {
   boolean collideTop = false;
   boolean collideBot = false;
   boolean collideRight = false;
@@ -16,12 +16,14 @@ class Character extends Rect {
   boolean goUp;
   boolean goDown;
   
+  float health;
+  
   int stunned;
   
   Character(float x, float y) {
     super(x, y, 32, 64);
     fillColor = color(255, 0, 0);
-    
+    health = 100;
     vx = 0;
     vy = 0;
     update();
@@ -42,11 +44,14 @@ class Character extends Rect {
   void jump() {
     vy = -jumpV;
     justJumped = true;
+    //spawnParticles(x + sizeX / 2, y + sizeY, 0, -3, color(64), 8);
   }
   
   void wallJump(float scale) {
     vy = min(-jumpV * 0.9, vy);
     vx = jumpV * 2.2 * scale;
+    float sign = Math.signum(scale);
+    spawnParticles((x + sizeX / 2) - (sizeX / 2 * sign), y + sizeY, 2 * sign, 0, color(64), 6);
   }
   
   void update() {
@@ -80,6 +85,9 @@ class Character extends Rect {
       if(collideRight) {
         if(!goDown) {
           terminalV = slideV; //slide
+          if(vy > 0 && random(1) < 0.2) {
+            spawnParticle(x + sizeX, y + sizeY, -2, vy, color(64));
+          }
         }
         
         if(goUp && !collideBot) {
@@ -117,6 +125,9 @@ class Character extends Rect {
       if(collideLeft) {
         if(!goDown) {
           terminalV = slideV; //slide
+          if(vy > 0 && random(1) < 0.2) {
+            spawnParticle(x, y + sizeY, 2, vy, color(64));
+          }
         }
       
         if(goUp && !collideBot) {
@@ -155,7 +166,7 @@ class Character extends Rect {
       if(justJumped) {
         float a = (-1 + sqrt(3)) / 2;
         float correction = gravity * ((0.5 / (1 + a + vy / jumpV)) - a) * 0.9;
-        vy -= correction;
+        vy -= correction; //<>//
       }
     }
     
@@ -164,9 +175,9 @@ class Character extends Rect {
         terminalV = slideV;
         
         Platform thePlatform = new Platform(x, Float.MAX_VALUE, 0);
-        for(Box box : getCollisions(false)) { //<>//
+        for(Box box : getCollisions(false)) { //<>// //<>//
           if(!(box instanceof Platform)) {
-            continue;
+            continue; //<>//
           }
           if(box.y < thePlatform.y) {
             thePlatform = (Platform)box;

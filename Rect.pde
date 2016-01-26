@@ -168,11 +168,6 @@ class Rect {
   }
 }
 
-
-
-
-
-
 class MovingRect extends Rect {
   float vx, vy;
   
