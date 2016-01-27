@@ -4,8 +4,10 @@ class Game {
   }
   
   void update() {
-    player.update();
-    for(Enemy enemy : enemies) {
+    if(player.alive()) {
+      player.update();
+    }
+    for(Character enemy : getEnemies()) {
       enemy.update();
     }
   }
@@ -13,11 +15,44 @@ class Game {
   void setup() {
     setupMap();
     player = new Player(100, 100);
-    enemies = new Enemy[] {
-        new Enemy(100, 100, Behavior.STAY),
-        new Enemy(900, mapSizeY - 64, Behavior.STAY),
-        new Enemy(1200, 100, Behavior.STAY),
+    enemies = new AIEnemy[] {
+        new AIEnemy(100, 100, Behavior.STAY),
+        new AIEnemy(900, mapSizeY - 64, Behavior.STAY),
+        new AIEnemy(1200, 100, Behavior.STAY),
       };
+  }
+  
+  Character[] getEnemies() {
+    List<Character> chars = new ArrayList<Character>(enemies.length);
+    for(Character c : enemies) {
+      if(c.alive()) {
+        chars.add(c);
+      }
+    }
+    
+    return chars.toArray(new Character[0]);
+  }
+}
+
+class OneVOne extends Game {
+  OneVOne() {
+    super();
+  }
+  
+  void setup() {
+    setupMap();
+    player = new Player(100, 100);
+    enemies = new AIEnemy[] {
+        new AIEnemy(200, 100, Behavior.STAY),
+      };
+  }
+  
+  Character[] getEnemies() {
+    if(enemies[0].health > 0) {
+      return new Character[] {enemies[0]};
+    } else {
+      return new Character[] {};
+    }
   }
 }
 
@@ -37,13 +72,13 @@ class ChaseRunGame extends Game {
   void setup() {
     setupMap();
     player = new Player(100, 100);
-    enemies = new Enemy[] {
-        new Enemy(100, 100, Behavior.RUN)
+    enemies = new AIEnemy[] {
+        new AIEnemy(100, 100, Behavior.RUN)
       };
   }
   
   void update() {
-    for(Enemy enemy : enemies) {
+    for(Character enemy : getEnemies()) {
       enemy.update();
     }
     player.update();
@@ -53,10 +88,10 @@ class ChaseRunGame extends Game {
       runner = chaser;
       chaser = temp;
       
-      if(runner instanceof Enemy) {
-        ((Enemy)runner).behavior = Behavior.RUN;
+      if(runner instanceof AIEnemy) {
+        ((AIEnemy)runner).behavior = Behavior.RUN;
       } else {
-        ((Enemy)chaser).behavior = Behavior.CHASE;
+        ((AIEnemy)chaser).behavior = Behavior.CHASE;
       }
       chaser.stun(restLen);
     }

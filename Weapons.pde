@@ -38,7 +38,7 @@ abstract class LineWeapon extends Weapon {
     float endX = startX + cos(angle) * length;
     float endY = startY + sin(angle) * length;
     
-    for(Enemy enemy : enemies) {
+    for(Character enemy : game.getEnemies()) {
       PVector intersection = enemy.getLineIntersection(startX, startY, endX, endY);
       if(intersection != null) {
         enemy.damage(damage);

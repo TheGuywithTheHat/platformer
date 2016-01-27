@@ -37,14 +37,17 @@ class Character extends MovingRect {
   
   void damage(float damage) {
     health -= damage;
-    //spawnParticles(x + sizeX / 2, y + sizeY / 2, 0, 0, fillColor, 4);
     if(health <= 0) {
       die();
     }
   }
   
   void die() {
-    //spawnParticles(x + sizeX / 2, y + sizeY / 2, 0, 0, fillColor, 32);
+    spawnParticles(x + sizeX / 2, y + sizeY / 2, 0, 0, fillColor, 32);
+  }
+  
+  boolean alive() {
+    return health > 0;
   }
   
   void jump() {

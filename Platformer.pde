@@ -1,5 +1,5 @@
 Player player;
-Enemy[] enemies;
+Character[] enemies;
 
 Game game;
 
@@ -11,7 +11,7 @@ void setup() {
   textAlign(LEFT, TOP);
   
   setupInput();
-  game = new Game();
+  game = new OneVOne();
 }
 
 void draw() {
@@ -36,17 +36,21 @@ void render() {
   fill(255);
   noStroke();
   rect(0, 0, mapSizeX, mapSizeY);
+  
   drawMap();
-  for(Enemy enemy : enemies) {
+  for(Character enemy : game.getEnemies()) {
     enemy.draw();
   }
-  player.draw();
+  
+  if(player.alive()) {
+    player.draw();
+  }
+  
   for(Particle particle : particles) {
     particle.draw();
   }
   
   if(isInDebug) renderDebug();
-  player.katana.action(1);
 }
 
 void renderDebug() {

@@ -5,11 +5,11 @@ enum Behavior {
   CHASE, RUN, STAY
 }
 
-class Enemy extends Character {
+class AIEnemy extends Character {
   Behavior behavior;
   long lastChange = 0;
   
-  Enemy(float x, float y) {
+  AIEnemy(float x, float y) {
     super(x, y);
     fillColor = color(64, 64, 192);
     behavior = Behavior.STAY;
@@ -19,9 +19,13 @@ class Enemy extends Character {
     update();
   }
   
-  Enemy(float x, float y, Behavior behavior) {
+  AIEnemy(float x, float y, Behavior behavior) {
     this(x, y);
     this.behavior = behavior;
+  }
+  
+  void die() {
+    super.die();
   }
   
   void ai() {
