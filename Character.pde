@@ -3,6 +3,8 @@ import java.util.List;
 import java.lang.Math;
 
 class Character extends MovingRect {
+  Katana katana;
+  
   boolean collideTop = false;
   boolean collideBot = false;
   boolean collideRight = false;
@@ -16,6 +18,8 @@ class Character extends MovingRect {
   boolean goUp;
   boolean goDown;
   
+  float angle;
+  
   float health;
   
   int stunned;
@@ -26,6 +30,8 @@ class Character extends MovingRect {
     health = 100;
     vx = 0;
     vy = 0;
+    katana = new Katana(this);
+    
     update();
   }
   

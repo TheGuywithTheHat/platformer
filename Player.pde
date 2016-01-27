@@ -39,6 +39,7 @@ class Player extends Character {
   
   void update() {
     getInput();
+    angle = atan2(screenYOffset + mouseY - y, screenXOffset + mouseX - x);
     super.update();
   }
 }

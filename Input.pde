@@ -59,7 +59,5 @@ void keyReleased() {
 }
 
 void mouseClicked() {
-  if(isInDebug) {
-    redraw();
-  }
+  player.katana.action(1);
 }

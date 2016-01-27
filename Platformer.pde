@@ -3,15 +3,15 @@ Enemy[] enemies;
 
 Game game;
 
-float xOffset;
-float yOffset;
+float screenXOffset;
+float screenYOffset;
 
 void setup() {
   size(1900, 1000);
   textAlign(LEFT, TOP);
   
   setupInput();
-  game = new ChaseRunGame();
+  game = new Game();
 }
 
 void draw() {
@@ -26,21 +26,8 @@ void update() {
     particles.get(i).update();
   }
   
-  xOffset = player.x - (width - player.sizeX) / 2;
-  yOffset = player.y - (height - player.sizeY) / 2;
-  
-  if(mousePressed) {
-    for(Enemy enemy : enemies) {
-      PVector intersection = enemy.getLineIntersection(xOffset + width / 2.0, yOffset + height / 2.0, mouseX + xOffset, mouseY + yOffset);
-      if(intersection != null) {
-        enemy.damage(1);
-        spawnParticles(intersection.x, intersection.y, 0, 0, enemy.fillColor, 1);
-      }
-    }
-  }
-  for(int i = 0; i < particles.size(); i++) {
-    particles.get(i).update();
-  }
+  screenXOffset = player.x - (width - player.sizeX) / 2;
+  screenYOffset = player.y - (height - player.sizeY) / 2;
 }
 
 void render() {
@@ -59,6 +46,7 @@ void render() {
   }
   
   if(isInDebug) renderDebug();
+  player.katana.action(1);
 }
 
 void renderDebug() {
