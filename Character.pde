@@ -4,6 +4,7 @@ import java.lang.Math;
 
 class Character extends MovingRect {
   Katana katana;
+  int animationLeft;
   
   boolean collideTop = false;
   boolean collideBot = false;
@@ -31,6 +32,7 @@ class Character extends MovingRect {
     vx = 0;
     vy = 0;
     katana = new Katana(this);
+    animationLeft = 0;
     
     update();
   }
@@ -67,7 +69,19 @@ class Character extends MovingRect {
     if(stunned > 0) {
       stun(stunned - 1);
     }
+    
+    if(animationLeft > 0) {
+      animationLeft--;
+    }
+    
     move();
+    
+    katana.update();
+  }
+  
+  void draw() {
+    super.draw();
+    katana.draw();
   }
   
   void stun(int duration) {

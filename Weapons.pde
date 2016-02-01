@@ -1,27 +1,31 @@
 abstract class Weapon {
   Character parent;
-  
-  Action[] acts;
+  float attackX;
+  float attackY;
   
   Weapon(Character parent) {
     this.parent = parent;
   }
   
-  void action(int number) {
-    acts[number].action.run();
-  }
-}
-
-class Action {
-  final int cooldown; //how long the action takes to cooldown (the action cannot be activated within this period)
-  final int time; //how long the action takes to complete (ANY action cannot be activated within this period)
-  int activatedAgo = Integer.MAX_VALUE;
-  Runnable action;
+  abstract void update();
   
-  Action(Runnable action, int time, int cooldown) {
-    this.cooldown = cooldown;
-    this.time = time;
-    this.action = action;
+  abstract void draw();
+  
+  void action(int action) {
+    if(!canAct(action)) {
+      return;
+    }
+    
+    attackX = screenXOffset + mouseX;
+    attackY = screenYOffset + mouseY;
+  }
+  
+  boolean canAct(int action) {
+    if(parent.animationLeft > 0) {
+      return false;
+    }
+    
+    return true;
   }
 }
 
@@ -42,37 +46,81 @@ abstract class LineWeapon extends Weapon {
       PVector intersection = enemy.getLineIntersection(startX, startY, endX, endY);
       if(intersection != null) {
         enemy.damage(damage);
-        spawnParticles(intersection.x, intersection.y, 0, 0, enemy.fillColor, 1);
+        spawnParticles(intersection.x, intersection.y, 0, 0, enemy.fillColor, 3);
       }
     }
   }
 }
 
 class Katana extends LineWeapon {
+  int maxSlashCooldown;
+  int slashAnimationTime;
+  int slashCooldown;
+  int slashCastPoint;
+  
+  int maxStabCooldown;
+  int stabCooldown;
+  int stabCastPoint;
+  
   Katana(Character parent) {
     super(parent);
     length = 50;
     
-    acts = new Action[] {
-        new Action(new Runnable() {
-            void run() {
-              attack(10, atan2(screenYOffset + mouseY - player.y, screenXOffset + mouseX - player.x));
-            }
-          }, 50, 60),
-        new Action(new Runnable() {
-            void run() {
-              attack(2, atan2(screenYOffset + mouseY - player.y, screenXOffset + mouseX - player.x));
-            }
-          }, 15, 15)
-      };
+    maxSlashCooldown = 30;
+    slashAnimationTime = 25;
+    slashCooldown = 0;
+    slashCastPoint = 5;
+  }
+  
+  void draw() {
+    if(slashCooldown > 0) {
+      pushMatrix();
+        noStroke();
+        fill(0);
+        
+        translate(parent.x + parent.sizeX / 2, parent.y + parent.sizeY / 2);
+        rotate((slashAnimationTime - parent.animationLeft - slashCastPoint) * 0.03 + atan2(attackY - (parent.y + parent.sizeY / 2), attackX - (parent.x + parent.sizeX / 2)) - HALF_PI);
+        
+        rect(0, 2, 4, length);
+      popMatrix();
+    }
+  }
+  
+  @Override
+  void update() {
+    if(slashCooldown > 0) {
+      slashCooldown--;
+      
+      if(parent.animationLeft == slashAnimationTime - slashCastPoint) {
+        attack(10, atan2(attackY - (parent.y + parent.sizeY / 2), attackX - (parent.x + parent.sizeX / 2)));
+      }
+    }
     
-    /*acts = new Action[] {
-        new Action(() -> {
-            attack(10, parent.angle);
-          }, 50, 60),
-        new Action(() -> {
-            attack(2, parent.angle);
-          }, 15, 15)
-      };*/
+  }
+  
+  @Override
+  public void action(int action) {
+    if(!canAct(action)) {
+      return;
+    }
+    
+    super.action(action);
+    
+    if(action == 0) {
+      slashCooldown = maxSlashCooldown;
+      parent.animationLeft = maxSlashCooldown - slashCastPoint;
+    }
+  }
+  
+  @Override
+  public boolean canAct(int action) { //<>//
+    if(!super.canAct(action)) {
+      return false;
+    }
+    if(action == 0 && slashCooldown > 0) {
+      return false;
+    }
+    
+    return true;
   }
 }

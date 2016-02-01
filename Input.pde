@@ -49,6 +49,11 @@ void keyPressed() {
         loop();
       }
       break;
+    case KeyEvent.VK_F4:
+      if(isInDebug) {
+        draw();
+      }
+      break;
     default:
       break;
   }
@@ -58,6 +63,15 @@ void keyReleased() {
   setKey(keyCode, false);
 }
 
-void mouseClicked() {
-  player.katana.action(1);
+void mousePressed() {
+  int button = -1;
+  if(mouseButton == LEFT) {
+    button = 0;
+  } else if(mouseButton == RIGHT) {
+    button = 1;
+  }
+  
+  if(button > -1) {
+    player.katana.action(button); //<>//
+  }
 }
