@@ -49,12 +49,15 @@ void render() {
   for(Particle particle : particles) {
     particle.draw();
   }
-  
+  drawHUD();
+  println(frameRate);
+}
+
+void drawHUD() {
   if(isInDebug) renderDebug();
 }
 
 void renderDebug() {
-  resetMatrix();
   fill(128, 128);
   noStroke();
   rect(0, 16 * 0, 100, 16);

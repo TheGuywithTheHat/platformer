@@ -16,8 +16,8 @@ abstract class Weapon {
       return;
     }
     
-    attackX = screenXOffset + mouseX;
-    attackY = screenYOffset + mouseY;
+    attackX = screenXOffset + mouseX - (parent.x + parent.sizeX / 2);
+    attackY = screenYOffset + mouseY - (parent.y + parent.sizeY / 2);
   }
   
   boolean canAct(int action) {
@@ -30,23 +30,39 @@ abstract class Weapon {
 }
 
 abstract class LineWeapon extends Weapon {
+  PVector location;
+  boolean enemyDamaged;
   float length;
   
   LineWeapon(Character parent) {
     super(parent);
+    enemyDamaged = false;
   }
   
-  void attack(float damage, float angle) {
+  void update() {
+    if(location != null && !enemyDamaged) {
+      
+    }
+  }
+  
+  void attack(float damage) {
+    if(enemyDamaged) {
+      //return;
+    }
+    
     float startX = parent.x + parent.sizeX / 2;
     float startY = parent.y + parent.sizeY / 2;
-    float endX = startX + cos(angle) * length;
-    float endY = startY + sin(angle) * length;
+    float endX = startX + location.x;
+    float endY = startY + location.y;
     
     for(Character enemy : game.getEnemies()) {
       PVector intersection = enemy.getLineIntersection(startX, startY, endX, endY);
       if(intersection != null) {
-        enemy.damage(damage);
-        spawnParticles(intersection.x, intersection.y, 0, 0, enemy.fillColor, 3);
+        if(!enemyDamaged) {
+          enemy.damage(damage);
+          enemyDamaged = true;
+        }
+        spawnParticles(intersection.x, intersection.y, 0, 0, enemy.fillColor, 1);
       }
     }
   }
@@ -56,44 +72,51 @@ class Katana extends LineWeapon {
   int maxSlashCooldown;
   int slashAnimationTime;
   int slashCooldown;
-  int slashCastPoint;
+  float slashDamage;
   
   int maxStabCooldown;
   int stabCooldown;
-  int stabCastPoint;
+  int stabDamage;
   
   Katana(Character parent) {
     super(parent);
     length = 50;
     
-    maxSlashCooldown = 30;
-    slashAnimationTime = 25;
+    maxSlashCooldown = 20;
+    slashAnimationTime = 15;
     slashCooldown = 0;
-    slashCastPoint = 5;
+    slashDamage = 10;
+    
+    maxStabCooldown = 10;
+    stabCooldown = 0;
+    stabDamage = 4;
   }
   
   void draw() {
-    if(slashCooldown > 0) {
+    if(parent.animationLeft > 0) {
       pushMatrix();
         noStroke();
         fill(0);
         
         translate(parent.x + parent.sizeX / 2, parent.y + parent.sizeY / 2);
-        rotate((slashAnimationTime - parent.animationLeft - slashCastPoint) * 0.03 + atan2(attackY - (parent.y + parent.sizeY / 2), attackX - (parent.x + parent.sizeX / 2)) - HALF_PI);
+        rotate(atan2(location.y, location.x));
         
-        rect(0, 2, 4, length);
+        rect(0, -2, location.mag(), 4);
       popMatrix();
     }
   }
   
-  @Override
   void update() {
     if(slashCooldown > 0) {
       slashCooldown--;
-      
-      if(parent.animationLeft == slashAnimationTime - slashCastPoint) {
-        attack(10, atan2(attackY - (parent.y + parent.sizeY / 2), attackX - (parent.x + parent.sizeX / 2)));
-      }
+      location = new PVector(attackX, attackY).setMag(length).rotate((slashAnimationTime / 2 - parent.animationLeft) * 0.1 * Math.signum(attackX));
+      attack(slashDamage);
+    } else if(stabCooldown > 0) {
+      stabCooldown--;
+      location = new PVector(attackX, attackY).setMag(length - abs(stabCooldown - maxStabCooldown / 2) * 4);
+      attack(stabDamage);
+    } else {
+      enemyDamaged = false;
     }
     
   }
@@ -108,7 +131,12 @@ class Katana extends LineWeapon {
     
     if(action == 0) {
       slashCooldown = maxSlashCooldown;
-      parent.animationLeft = maxSlashCooldown - slashCastPoint;
+      parent.animationLeft = slashAnimationTime;
+    }
+    
+    if(action == 1) {
+      stabCooldown = maxStabCooldown;
+      parent.animationLeft = maxStabCooldown;
     }
   }
   

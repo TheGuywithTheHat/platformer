@@ -43,7 +43,7 @@ class OneVOne extends Game {
     setupMap();
     player = new Player(100, 100);
     enemies = new AIEnemy[] {
-        new AIEnemy(200, 100, Behavior.STAY),
+        new AIEnemy(200, 100, Behavior.RUN),
       };
   }
   
