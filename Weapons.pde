@@ -80,7 +80,7 @@ class Katana extends LineWeapon {
   
   Katana(Character parent) {
     super(parent);
-    length = 50;
+    length = 70;
     
     maxSlashCooldown = 20;
     slashAnimationTime = 15;
@@ -93,13 +93,13 @@ class Katana extends LineWeapon {
   }
   
   void draw() {
-    if(parent.animationLeft > 0) {
+    if(slashCooldown > 0 || stabCooldown > 0) {
       pushMatrix();
         noStroke();
         fill(0);
         
-        translate(parent.x + parent.sizeX / 2, parent.y + parent.sizeY / 2);
-        rotate(atan2(location.y, location.x));
+        translate(parent.x + parent.sizeX / 2, parent.y + parent.sizeY / 2); //<>//
+        rotate(atan2(location.y, location.x)); //<>//
         
         rect(0, -2, location.mag(), 4);
       popMatrix();
@@ -109,7 +109,7 @@ class Katana extends LineWeapon {
   void update() {
     if(slashCooldown > 0) {
       slashCooldown--;
-      location = new PVector(attackX, attackY).setMag(length).rotate((slashAnimationTime / 2 - parent.animationLeft) * 0.1 * Math.signum(attackX));
+      location = new PVector(attackX, attackY).setMag(length).rotate((slashAnimationTime / 2 - (slashCooldown - (maxSlashCooldown - slashAnimationTime))) * 0.1 * Math.signum(attackX));
       attack(slashDamage);
     } else if(stabCooldown > 0) {
       stabCooldown--;
@@ -150,5 +150,59 @@ class Katana extends LineWeapon {
     }
     
     return true;
+  }
+}
+
+class OneTanto extends Katana {
+  OneTanto(Character parent) {
+    super(parent);
+    length = 50;
+    
+    maxSlashCooldown = 15;
+    slashAnimationTime = maxSlashCooldown;
+    slashCooldown = 0;
+    slashDamage = 3;
+    
+    maxStabCooldown = 10;
+    stabCooldown = 0;
+    stabDamage = 2;
+  }
+  
+  @Override
+  public boolean canAct(int action) {
+    if(slashCooldown > 0 || stabCooldown > 0) {
+      return false;
+    }
+    
+    return true;
+  }
+}
+
+class Tanto extends Weapon {
+  OneTanto tanto1;
+  OneTanto tanto2;
+  
+  Tanto(Character parent) {
+    super(parent);
+    tanto1 = new OneTanto(parent);
+    tanto2 = new OneTanto(parent);
+  }
+  
+  void update() {
+    tanto1.update();
+    tanto2.update();
+  }
+  
+  void draw() {
+    tanto1.draw();
+    tanto2.draw();
+  }
+  
+  void action(int action) {
+    if(tanto1.canAct(action)) {
+      tanto1.action(action);
+    } else if(tanto2.canAct(action)) {
+      tanto2.action(action);
+    }
   }
 }

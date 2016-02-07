@@ -72,6 +72,6 @@ void mousePressed() {
   }
   
   if(button > -1) {
-    player.katana.action(button); //<>//
+    player.currentWeapon.action(button);
   }
 }

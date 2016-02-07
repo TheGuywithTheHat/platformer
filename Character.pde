@@ -3,7 +3,10 @@ import java.util.List;
 import java.lang.Math;
 
 class Character extends MovingRect {
+  Weapon currentWeapon;
   Katana katana;
+  Tanto tanto;
+  
   int animationLeft;
   
   boolean collideTop = false;
@@ -31,7 +34,11 @@ class Character extends MovingRect {
     health = 100;
     vx = 0;
     vy = 0;
+    
     katana = new Katana(this);
+    tanto = new Tanto(this);
+    currentWeapon = tanto;
+    
     animationLeft = 0;
     
     update();
@@ -77,11 +84,12 @@ class Character extends MovingRect {
     move();
     
     katana.update();
+    tanto.update();
   }
   
   void draw() {
     super.draw();
-    katana.draw();
+    currentWeapon.draw();
   }
   
   void stun(int duration) {
