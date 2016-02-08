@@ -7,7 +7,7 @@ float screenXOffset;
 float screenYOffset;
 
 void setup() {
-  size(1900, 1000);
+  fullScreen();
   textAlign(LEFT, TOP);
   
   setupInput();

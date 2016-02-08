@@ -3,9 +3,9 @@ import java.util.List;
 import java.lang.Math;
 
 class Character extends MovingRect {
+  int queuedWeapon;
   Weapon currentWeapon;
-  Katana katana;
-  Tanto tanto;
+  Weapon[] weapons = new Weapon[] {new Katana(this), new Tanto(this)};
   
   int animationLeft;
   
@@ -35,9 +35,7 @@ class Character extends MovingRect {
     vx = 0;
     vy = 0;
     
-    katana = new Katana(this);
-    tanto = new Tanto(this);
-    currentWeapon = tanto;
+    currentWeapon = weapons[0];
     
     animationLeft = 0;
     
@@ -79,12 +77,16 @@ class Character extends MovingRect {
     
     if(animationLeft > 0) {
       animationLeft--;
+    } else if(queuedWeapon > -1) {
+      currentWeapon = weapons[queuedWeapon];
+      queuedWeapon = -1;
     }
     
     move();
     
-    katana.update();
-    tanto.update();
+    for(Weapon weapon : weapons) {
+      weapon.update();
+    }
   }
   
   void draw() {
@@ -98,6 +100,10 @@ class Character extends MovingRect {
     goDown = false;
     goLeft = false;
     goRight = false;
+  }
+  
+  void changeWeapon(int weapon) {
+    queuedWeapon = weapon;
   }
   
   void move() {
