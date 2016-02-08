@@ -20,12 +20,13 @@ abstract class Weapon {
     attackY = screenYOffset + mouseY - (parent.y + parent.sizeY / 2);
   }
   
+  @SuppressWarnings("unused")
   boolean canAct(int action) {
     if(parent.animationLeft > 0) {
       return false;
+    } else {
+      return true;
     }
-    
-    return true;
   }
 }
 
@@ -147,9 +148,9 @@ class Katana extends LineWeapon {
     }
     if(action == 0 && slashCooldown > 0) {
       return false;
+    } else {
+      return true;
     }
-    
-    return true;
   }
 }
 
@@ -170,11 +171,11 @@ class OneTanto extends Katana {
   
   @Override
   public boolean canAct(int action) {
-    if(slashCooldown > 0 || stabCooldown > 0) {
+    if(slashCooldown > 0 || stabCooldown > 0 || parent.queuedWeapon > -1) {
       return false;
+    } else {
+      return true;
     }
-    
-    return true;
   }
 }
 

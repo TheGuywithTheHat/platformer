@@ -54,6 +54,12 @@ void keyPressed() {
         draw();
       }
       break;
+    case KeyEvent.VK_1:
+      player.changeWeapon(0);
+      break;
+    case KeyEvent.VK_2:
+      player.changeWeapon(1);
+      break;
     default:
       break;
   }
