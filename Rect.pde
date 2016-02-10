@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 class Rect {
   float x, y, sizeX, sizeY;
   color fillColor;
@@ -46,6 +48,48 @@ class Rect {
     return px >= x && px <= x + sizeX && py >= y && py <= y + sizeY;
   }
   
+  List<Rect> getCollisions(List<Rect> rects) {
+    List<Rect> collisions = new ArrayList();
+    for(Rect rect : rects) {
+      if(rect.collides(this)) {
+        collisions.add(rect);
+      }
+    }
+    
+    return collisions;
+  }
+  
+  List<Rect> getIntersections(List<Rect> rects) {
+    List<Rect> intersections = new ArrayList();
+    for(Rect rect : rects) {
+      if(rect.intersects(this)) {
+        intersections.add(rect);
+      }
+    }
+    
+    return intersections;
+  }
+  
+  /*List<Box> getCollisions() {
+    List<Rect> boxes = new ArrayList(map.length);
+    
+    for(Box box : map) {
+      boxes.add((Rect)(box));
+    }
+    
+    return getCollisions(boxes);
+  }
+  
+  List<Box> getIntersections() {
+    List<Rect> boxes = new ArrayList(map.length);
+    
+    for(Box box : map) {
+      boxes.add((Rect)(box));
+    }
+    
+    return getIntersections(boxes);
+  }*/
+  
   List<Box> getCollisions() {
     List<Box> collisions = new ArrayList();
     Rect newPos = new Rect(x, y, sizeX, sizeY);
@@ -74,5 +118,65 @@ class Rect {
     noStroke();
     fill(fillColor);
     rect(x, y, sizeX, sizeY);
+  }
+  
+  PVector getLineIntersection(float p0_x, float p0_y, float p1_x, float p1_y) {
+    PVector top =   getLineIntersection(p0_x, p0_y, p1_x, p1_y, x        , y        , x + sizeX, y        );
+    PVector bot =   getLineIntersection(p0_x, p0_y, p1_x, p1_y, x        , y + sizeY, x + sizeX, y + sizeY);
+    PVector left =  getLineIntersection(p0_x, p0_y, p1_x, p1_y, x        , y        , x        , y + sizeY);
+    PVector right = getLineIntersection(p0_x, p0_y, p1_x, p1_y, x + sizeX, y        , x + sizeX, y + sizeY);
+    
+    PVector intersection = null;
+    float dist = Float.MAX_VALUE;
+    
+    if(top != null) {
+      intersection = top;
+      dist = intersection.dist(new PVector(p0_x, p0_y));
+    }
+    if(bot != null && bot.dist(new PVector(p0_x, p0_y)) < dist) {
+      intersection = bot;
+      dist = intersection.dist(new PVector(p0_x, p0_y));
+    }
+    if(left != null && left.dist(new PVector(p0_x, p0_y)) < dist) {
+      intersection = left;
+      dist = intersection.dist(new PVector(p0_x, p0_y));
+    }
+    if(right != null && right.dist(new PVector(p0_x, p0_y)) < dist) {
+      intersection = right;
+      dist = intersection.dist(new PVector(p0_x, p0_y));
+    }
+    
+    return intersection;
+  }
+  
+  PVector getLineIntersection(float p0_x, float p0_y, float p1_x, float p1_y, float p2_x, float p2_y, float p3_x, float p3_y)
+  {
+    float s1_x = p1_x - p0_x;
+    float s1_y = p1_y - p0_y;
+    float s2_x = p3_x - p2_x;
+    float s2_y = p3_y - p2_y;
+
+    float s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+    float t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+    if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+    {
+      return new PVector(p0_x + (t * s1_x), p0_y + (t * s1_y));
+    }
+
+    return null; // No collision
+  }
+}
+
+class MovingRect extends Rect {
+  float vx, vy;
+  
+  MovingRect(float x, float y, float sizeX, float sizeY) {
+    super(x, y, sizeX, sizeY);
+  }
+  
+  void move() {
+    x += vx;
+    y += vy;
   }
 }

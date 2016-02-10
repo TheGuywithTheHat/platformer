@@ -1,8 +1,14 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.Math;
 
-class Character extends Rect {
-  float vx, vy;
+class Character extends MovingRect {
+  int queuedWeapon;
+  Weapon currentWeapon;
+  Weapon[] weapons = new Weapon[] {new Katana(this), new Tanto(this)};
+  
+  int animationLeft;
+  
   boolean collideTop = false;
   boolean collideBot = false;
   boolean collideRight = false;
@@ -16,32 +22,76 @@ class Character extends Rect {
   boolean goUp;
   boolean goDown;
   
+  float angle;
+  
+  float health;
+  
   int stunned;
   
   Character(float x, float y) {
     super(x, y, 32, 64);
     fillColor = color(255, 0, 0);
-    
+    health = 100;
     vx = 0;
     vy = 0;
+    
+    currentWeapon = weapons[0];
+    
+    animationLeft = 0;
+    
     update();
+  }
+  
+  void damage(float damage) {
+    health -= damage;
+    if(health <= 0) {
+      die();
+    }
+  }
+  
+  void die() {
+    spawnParticles(x + sizeX / 2, y + sizeY / 2, 0, 0, fillColor, 32);
+  }
+  
+  boolean alive() {
+    return health > 0;
   }
   
   void jump() {
     vy = -jumpV;
     justJumped = true;
+    //spawnParticles(x + sizeX / 2, y + sizeY, 0, -3, color(64), 8);
   }
   
   void wallJump(float scale) {
     vy = min(-jumpV * 0.9, vy);
     vx = jumpV * 2.2 * scale;
+    float sign = Math.signum(scale);
+    spawnParticles((x + sizeX / 2) - (sizeX / 2 * sign), y + sizeY, 2 * sign, 0, color(64), 6);
   }
   
   void update() {
     if(stunned > 0) {
       stun(stunned - 1);
     }
+    
+    if(animationLeft > 0) {
+      animationLeft--;
+    } else if(queuedWeapon > -1) {
+      currentWeapon = weapons[queuedWeapon];
+      queuedWeapon = -1;
+    }
+    
     move();
+    
+    for(Weapon weapon : weapons) {
+      weapon.update();
+    }
+  }
+  
+  void draw() {
+    super.draw();
+    currentWeapon.draw();
   }
   
   void stun(int duration) {
@@ -50,6 +100,10 @@ class Character extends Rect {
     goDown = false;
     goLeft = false;
     goRight = false;
+  }
+  
+  void changeWeapon(int weapon) {
+    queuedWeapon = weapon;
   }
   
   void move() {
@@ -68,6 +122,9 @@ class Character extends Rect {
       if(collideRight) {
         if(!goDown) {
           terminalV = slideV; //slide
+          if(vy > 0 && random(1) < 0.2) {
+            spawnParticle(x + sizeX, y + sizeY, -2, vy, color(64));
+          }
         }
         
         if(goUp && !collideBot) {
@@ -105,6 +162,9 @@ class Character extends Rect {
       if(collideLeft) {
         if(!goDown) {
           terminalV = slideV; //slide
+          if(vy > 0 && random(1) < 0.2) {
+            spawnParticle(x, y + sizeY, 2, vy, color(64));
+          }
         }
       
         if(goUp && !collideBot) {
@@ -143,7 +203,7 @@ class Character extends Rect {
       if(justJumped) {
         float a = (-1 + sqrt(3)) / 2;
         float correction = gravity * ((0.5 / (1 + a + vy / jumpV)) - a) * 0.9;
-        vy -= correction;
+        vy -= correction; //<>//
       }
     }
     
@@ -152,9 +212,9 @@ class Character extends Rect {
         terminalV = slideV;
         
         Platform thePlatform = new Platform(x, Float.MAX_VALUE, 0);
-        for(Box box : getCollisions(false)) { //<>//
+        for(Box box : getCollisions(false)) { //<>// //<>//
           if(!(box instanceof Platform)) {
-            continue;
+            continue; //<>//
           }
           if(box.y < thePlatform.y) {
             thePlatform = (Platform)box;
@@ -163,7 +223,7 @@ class Character extends Rect {
          
         if(y + min(vy, terminalV) > thePlatform.y) {
           y = thePlatform.y;
-          vy = 0;
+          vy = 0; //<>//
         }
         
         if(vy > -climbV && goUp) {

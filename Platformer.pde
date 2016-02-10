@@ -1,14 +1,17 @@
 Player player;
-Enemy[] enemies;
+Character[] enemies;
 
 Game game;
 
+float screenXOffset;
+float screenYOffset;
+
 void setup() {
-  size(1900, 1000);
+  fullScreen();
   textAlign(LEFT, TOP);
   
   setupInput();
-  game = new Game();
+  game = new OneVOne();
 }
 
 void draw() {
@@ -18,6 +21,13 @@ void draw() {
 
 void update() {
   game.update();
+  
+  for(int i = 0; i < particles.size(); i++) {
+    particles.get(i).update();
+  }
+  
+  screenXOffset = player.x - (width - player.sizeX) / 2;
+  screenYOffset = player.y - (height - player.sizeY) / 2;
 }
 
 void render() {
@@ -26,17 +36,28 @@ void render() {
   fill(255);
   noStroke();
   rect(0, 0, mapSizeX, mapSizeY);
+  
   drawMap();
-  for(Enemy enemy : enemies) {
+  for(Character enemy : game.getEnemies()) {
     enemy.draw();
   }
-  player.draw();
   
+  if(player.alive()) {
+    player.draw();
+  }
+  
+  for(Particle particle : particles) {
+    particle.draw();
+  }
+  drawHUD();
+  println(frameRate);
+}
+
+void drawHUD() {
   if(isInDebug) renderDebug();
 }
 
 void renderDebug() {
-  resetMatrix();
   fill(128, 128);
   noStroke();
   rect(0, 16 * 0, 100, 16);

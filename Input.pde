@@ -49,6 +49,17 @@ void keyPressed() {
         loop();
       }
       break;
+    case KeyEvent.VK_F4:
+      if(isInDebug) {
+        draw();
+      }
+      break;
+    case KeyEvent.VK_1:
+      player.changeWeapon(0);
+      break;
+    case KeyEvent.VK_2:
+      player.changeWeapon(1);
+      break;
     default:
       break;
   }
@@ -58,8 +69,15 @@ void keyReleased() {
   setKey(keyCode, false);
 }
 
-void mouseClicked() {
-  if(isInDebug) {
-    redraw();
+void mousePressed() {
+  int button = -1;
+  if(mouseButton == LEFT) {
+    button = 0;
+  } else if(mouseButton == RIGHT) {
+    button = 1;
+  }
+  
+  if(button > -1) {
+    player.currentWeapon.action(button);
   }
 }

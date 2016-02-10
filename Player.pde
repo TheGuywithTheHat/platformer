@@ -4,7 +4,7 @@ import java.util.List;
 class Player extends Character {
   Player(float x, float y) {
     super(x, y);
-    fillColor = color(255, 0, 0);
+    fillColor = color(192, 32, 32);
     
     vx = 0;
     vy = 0;
@@ -39,6 +39,7 @@ class Player extends Character {
   
   void update() {
     getInput();
+    angle = atan2(screenYOffset + mouseY - y, screenXOffset + mouseX - x);
     super.update();
   }
 }
