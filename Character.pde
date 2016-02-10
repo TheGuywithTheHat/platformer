@@ -7,7 +7,7 @@ class Character extends MovingRect {
   Weapon currentWeapon;
   Weapon[] weapons = new Weapon[] {new Katana(this), new Tanto(this)};
   
-  int animationLeft;
+  float animationLeft;
   
   boolean collideTop = false;
   boolean collideBot = false;
@@ -26,7 +26,7 @@ class Character extends MovingRect {
   
   float health;
   
-  int stunned;
+  float stunned;
   
   Character(float x, float y) {
     super(x, y, 32, 64);
@@ -72,11 +72,11 @@ class Character extends MovingRect {
   
   void update() {
     if(stunned > 0) {
-      stun(stunned - 1);
+      stun(stunned - deltaTime);
     }
     
     if(animationLeft > 0) {
-      animationLeft--;
+      animationLeft -= deltaTime;
     } else if(queuedWeapon > -1) {
       currentWeapon = weapons[queuedWeapon];
       queuedWeapon = -1;
@@ -94,7 +94,7 @@ class Character extends MovingRect {
     currentWeapon.draw();
   }
   
-  void stun(int duration) {
+  void stun(float duration) {
     stunned = duration;
     goUp = false;
     goDown = false;
@@ -109,7 +109,7 @@ class Character extends MovingRect {
   void move() {
     terminalV = d_terminalV;
     
-    vy += gravity;
+    vy += gravity * deltaTick;
     
     float accel = accelBase + accelCoeff * abs(vx);
     if(!collideBot) {
@@ -117,7 +117,7 @@ class Character extends MovingRect {
     }
     
     if(goRight && !goLeft) {
-      vx += accel;
+      vx += accel * deltaTick;
       
       if(collideRight) {
         if(!goDown) {
@@ -150,9 +150,9 @@ class Character extends MovingRect {
       }
     } else if(vx > 0) {
       if(collideBot) {
-        vx -= 3;
+        vx -= 3 * deltaTick;
       }
-      vx -= 0.3;
+      vx -= 0.3 * deltaTick;
       vx = max(vx, 0);
     }
     
@@ -190,9 +190,9 @@ class Character extends MovingRect {
       }
     } else if(vx < 0) {
       if(collideBot) {
-        vx += 3;
+        vx += 3 * deltaTick;
       }
-      vx += 0.3;
+      vx += 0.3 * deltaTick;
       vx = min(vx, 0);
     }
     
@@ -203,7 +203,7 @@ class Character extends MovingRect {
       if(justJumped) {
         float a = (-1 + sqrt(3)) / 2;
         float correction = gravity * ((0.5 / (1 + a + vy / jumpV)) - a) * 0.9;
-        vy -= correction; //<>//
+        vy -= correction * deltaTick; //<>//
       }
     }
     
@@ -212,7 +212,7 @@ class Character extends MovingRect {
         terminalV = slideV;
         
         Platform thePlatform = new Platform(x, Float.MAX_VALUE, 0);
-        for(Box box : getCollisions(false)) { //<>// //<>//
+        for(Box box : getCollisions(false)) { //<>//
           if(!(box instanceof Platform)) {
             continue; //<>//
           }
@@ -221,7 +221,7 @@ class Character extends MovingRect {
           }
         }
          
-        if(y + min(vy, terminalV) > thePlatform.y) {
+        if(y + min(vy, terminalV) * deltaTick > thePlatform.y) {
           y = thePlatform.y;
           vy = 0; //<>//
         }
@@ -237,13 +237,13 @@ class Character extends MovingRect {
     
     processCollisions(getCollisions());
     
-    x += vx;
-    y += vy;
+    x += vx * deltaTick;
+    y += vy * deltaTick;
   }
   
   List<Box> getCollisions() {
     List<Box> collisions = new ArrayList();
-    Rect newPos = new Rect(x + vx, y + vy, sizeX, sizeY);
+    Rect newPos = new Rect(x + vx * deltaTick, y + vy * deltaTick, sizeX, sizeY);
     for(Box box : map) {
       if(box.collides(newPos)) {
         collisions.add(box);
@@ -263,7 +263,7 @@ class Character extends MovingRect {
   
   List<Box> getIntersections() {
     List<Box> intersections = new ArrayList();
-    Rect newPos = new Rect(x + vx, y + vy, sizeX, sizeY);
+    Rect newPos = new Rect(x + vx * deltaTick, y + vy * deltaTick, sizeX, sizeY);
     for(Box box : map) {
       if(box.intersects(newPos)) {
         intersections.add(box);
@@ -288,7 +288,7 @@ class Character extends MovingRect {
         
         if(!goDown && vy >= 0 && botY == 0 && rightX != 0 && leftX != 0) { // currently contacting but not intersecting on the Y axis
           vy = 0;
-        } else if(!goDown && botY > 0 && botY < vy && rightX < 0 && leftX > 0) {
+        } else if(!goDown && botY > 0 && botY < vy * deltaTick && rightX < 0 && leftX > 0) {
           //if(!goDown && botY > 0 && botY < vy && ((rightX < 0 && leftX > 0) || (rightX > 0 && rightX < vx && box.y > vy / vx * (box.x - x + sizeX) + y || (leftX < 0 && leftX > vx && box.y > vy / vx * (box.x + box.sizeX - x) + y)))) {
           y = box.y - sizeY;
           vy = 0;
