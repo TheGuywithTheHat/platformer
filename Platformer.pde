@@ -1,6 +1,12 @@
 Player player;
 Character[] enemies;
 
+long lastTime;
+long currentTime;
+long deltaTime;
+int tickRate = 60;
+float deltaTick;
+
 Game game;
 
 float screenXOffset;
@@ -12,11 +18,18 @@ void setup() {
   
   setupInput();
   game = new OneVOne();
+  currentTime = millis();
 }
 
 void draw() {
+  lastTime = currentTime;
+  currentTime = millis();
+  deltaTime = currentTime - lastTime;
+  deltaTick = (float)(deltaTime) / 1000 * tickRate;
+  
   update();
   render();
+  println(frameRate);
 }
 
 void update() {
@@ -50,7 +63,6 @@ void render() {
     particle.draw();
   }
   drawHUD();
-  println(frameRate);
 }
 
 void drawHUD() {
