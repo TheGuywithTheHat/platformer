@@ -157,7 +157,7 @@ class Character extends MovingRect {
     }
     
     if(goLeft && !goRight) {
-      vx -= accel;
+      vx -= accel * deltaTick;
       
       if(collideLeft) {
         if(!goDown) {
@@ -203,7 +203,7 @@ class Character extends MovingRect {
       if(justJumped) {
         float a = (-1 + sqrt(3)) / 2;
         float correction = gravity * ((0.5 / (1 + a + vy / jumpV)) - a) * 0.9;
-        vy -= correction * deltaTick; //<>//
+        vy -= correction * deltaTick; //<>// //<>//
       }
     }
     
@@ -212,9 +212,9 @@ class Character extends MovingRect {
         terminalV = slideV;
         
         Platform thePlatform = new Platform(x, Float.MAX_VALUE, 0);
-        for(Box box : getCollisions(false)) { //<>//
+        for(Box box : getCollisions(false)) { //<>// //<>//
           if(!(box instanceof Platform)) {
-            continue; //<>//
+            continue; //<>// //<>//
           }
           if(box.y < thePlatform.y) {
             thePlatform = (Platform)box;
@@ -223,7 +223,7 @@ class Character extends MovingRect {
          
         if(y + min(vy, terminalV) * deltaTick > thePlatform.y) {
           y = thePlatform.y;
-          vy = 0; //<>//
+          vy = 0; //<>// //<>//
         }
         
         if(vy > -climbV && goUp) {

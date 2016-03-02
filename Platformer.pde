@@ -17,7 +17,7 @@ void setup() {
   textAlign(LEFT, TOP);
   
   setupInput();
-  game = new OneVOne();
+  game = new Game();
   currentTime = millis();
 }
 

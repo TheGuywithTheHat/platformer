@@ -146,7 +146,7 @@ class Katana extends LineWeapon {
     if(!super.canAct(action)) {
       return false;
     }
-    if(action == 0 && slashCooldown > 0) {
+    if(slashCooldown > 0 || stabCooldown > 0) {
       return false;
     } else {
       return true;
