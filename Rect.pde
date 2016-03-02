@@ -176,7 +176,7 @@ class MovingRect extends Rect {
   }
   
   void move() {
-    x += vx;
-    y += vy;
+    x += vx * deltaTick;
+    y += vy * deltaTick;
   }
 }

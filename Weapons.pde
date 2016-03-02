@@ -70,14 +70,14 @@ abstract class LineWeapon extends Weapon {
 }
 
 class Katana extends LineWeapon {
-  int maxSlashCooldown;
-  int slashAnimationTime;
-  int slashCooldown;
+  float maxSlashCooldown;
+  float slashAnimationTime;
+  float slashCooldown;
   float slashDamage;
   
-  int maxStabCooldown;
-  int stabCooldown;
-  int stabDamage;
+  float maxStabCooldown;
+  float stabCooldown;
+  float stabDamage;
   
   Katana(Character parent) {
     super(parent);
@@ -109,11 +109,11 @@ class Katana extends LineWeapon {
   
   void update() {
     if(slashCooldown > 0) {
-      slashCooldown--;
+      slashCooldown -= deltaTick;
       location = new PVector(attackX, attackY).setMag(length).rotate((slashAnimationTime / 2 - (slashCooldown - (maxSlashCooldown - slashAnimationTime))) * 0.1 * Math.signum(attackX));
       attack(slashDamage);
     } else if(stabCooldown > 0) {
-      stabCooldown--;
+      stabCooldown -= deltaTick;
       location = new PVector(attackX, attackY).setMag(length - abs(stabCooldown - maxStabCooldown / 2) * 4);
       attack(stabDamage);
     } else {
@@ -146,7 +146,7 @@ class Katana extends LineWeapon {
     if(!super.canAct(action)) {
       return false;
     }
-    if(action == 0 && slashCooldown > 0) {
+    if(slashCooldown > 0 || stabCooldown > 0) {
       return false;
     } else {
       return true;
