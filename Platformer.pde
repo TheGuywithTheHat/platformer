@@ -44,7 +44,8 @@ void update() {
 }
 
 void render() {
-  translate(-player.x + (width - player.sizeX) / 2, -player.y + (height - player.sizeY) / 2);
+  scale(0.5);
+  translate(-player.x + (width * 2 - player.sizeX) / 2, -player.y + (height * 2 - player.sizeY) / 2);
   background(0);
   fill(255);
   noStroke();

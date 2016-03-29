@@ -1,5 +1,5 @@
 final float d_gravity = 0.6;
-final float d_terminalV = 16;
+final float d_terminalV = 64;
 final float d_slideV = 6;
 final float d_jumpV = 12;
 
@@ -13,6 +13,6 @@ float slideV = d_slideV;
 float jumpV = d_jumpV;
 float climbV = 8;
 
-float accelCoeff = d_accelCoeff;
 float accelBase = d_accelBase;
+float accelCoeff = d_accelCoeff;
 float moveSpeed = d_moveSpeed;

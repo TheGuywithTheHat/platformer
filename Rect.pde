@@ -120,6 +120,16 @@ class Rect {
     rect(x, y, sizeX, sizeY);
   }
   
+  /**
+   * Gets the intersection point between a given line and this rect.
+   * 
+   * @param p0_x the x position of the first point on the line
+   * @param p0_y the y position of the first point on the line
+   * @param p1_x the x position of the second point on the line
+   * @param p1_y the y position of the second point on the line
+   * 
+   * @return a {@code PVector} with the position of the collision nearest to the first point, or {@code null} if there is no collision
+   */
   PVector getLineIntersection(float p0_x, float p0_y, float p1_x, float p1_y) {
     PVector top =   getLineIntersection(p0_x, p0_y, p1_x, p1_y, x        , y        , x + sizeX, y        );
     PVector bot =   getLineIntersection(p0_x, p0_y, p1_x, p1_y, x        , y + sizeY, x + sizeX, y + sizeY);
@@ -149,6 +159,20 @@ class Rect {
     return intersection;
   }
   
+  /**
+   * Gets the intersection point between two given lines.
+   * 
+   * @param p0_x the x position of the first point on the first line
+   * @param p0_y the y position of the first point on the first line
+   * @param p1_x the x position of the second point on the first line
+   * @param p1_y the y position of the second point on the first line
+   * @param p2_x the x position of the first point on the second line
+   * @param p2_y the y position of the first point on the second line
+   * @param p3_x the x position of the second point on the second line
+   * @param p3_y the y position of the second point on the second line
+   * 
+   * @return a {@code PVector} with the position of the collision, or {@code null} if there is no collision
+   */
   PVector getLineIntersection(float p0_x, float p0_y, float p1_x, float p1_y, float p2_x, float p2_y, float p3_x, float p3_y)
   {
     float s1_x = p1_x - p0_x;

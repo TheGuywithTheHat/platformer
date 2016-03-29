@@ -60,6 +60,12 @@ void keyPressed() {
     case KeyEvent.VK_2:
       player.changeWeapon(1);
       break;
+    case KeyEvent.VK_3:
+      player.changeWeapon(2);
+      break;
+    //case KeyEvent.VK_SPACE:
+    //  player.breakGrapple();
+    //  break;
     default:
       break;
   }

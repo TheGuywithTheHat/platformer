@@ -46,11 +46,12 @@ abstract class LineWeapon extends Weapon {
     }
   }
   
+  /**
+   * Damages the area covered by the weapon
+   * 
+   * @param damage The amount of damage to deal
+   */
   void attack(float damage) {
-    if(enemyDamaged) {
-      //return;
-    }
-    
     float startX = parent.x + parent.sizeX / 2;
     float startY = parent.y + parent.sizeY / 2;
     float endX = startX + location.x;
@@ -205,5 +206,68 @@ class Tanto extends Weapon {
     } else if(tanto2.canAct(action)) {
       tanto2.action(action);
     }
+  }
+}
+
+class Kunai extends Weapon {
+  PVector pos;
+  PVector velocity;
+  
+  int state = -1; // -1 = nothing, 0 = moving, 1 = grappled
+  float grappleDist = -1;
+  
+  Kunai(Character parent) {
+    super(parent);
+  }
+  
+  void action(int action) {
+    if(!canAct(action)) {
+      return;
+    }
+    super.action(action);
+    if(action == 0) {
+      parent.breakGrapple();
+      state = 0;
+      pos = new PVector(parent.x + parent.sizeX / 2, parent.y + parent.sizeY / 2);
+      velocity = new PVector(attackX, attackY).setMag(40);
+    } else if(action == 1) {
+      parent.breakGrapple();
+    }
+  }
+  
+  void update() {
+    if(state == 0) {
+      for(Box box : map) {
+        PVector intersection = box.getLineIntersection(pos.x, pos.y, pos.x + velocity.x, pos.y + velocity.y);
+        if(intersection != null) {
+          state = 1;
+          pos = intersection;
+          parent.grapple = this;
+          grappleDist = new PVector(pos.x - (parent.x + parent.sizeX / 2), pos.y - (parent.y + parent.sizeY / 2)).mag();
+          spawnParticles(intersection.x, intersection.y, 0, 0, box.fillColor, 10);
+        }
+      }
+      if(state == 0) {
+        pos.add(velocity);
+      }
+    }
+  }
+  
+  void draw() {
+    if(state != -1) {
+      stroke(0);
+      strokeWeight(2);
+      //line(pos.x, pos.y, parent.x + parent.sizeX / 2, parent.y + parent.sizeY / 2);
+      noFill();
+      bezier(pos.x, pos.y,
+        pos.x + (parent.x + parent.sizeX / 2 - pos.x) * 0.4, pos.y + (parent.y + parent.sizeY / 2 - pos.y) * 0.4 + (grappleDist - new PVector(pos.x - (parent.x + parent.sizeX / 2), pos.y - (parent.y + parent.sizeY / 2)).mag()),
+        pos.x + (parent.x + parent.sizeX / 2 - pos.x) * 0.6, pos.y + (parent.y + parent.sizeY / 2 - pos.y) * 0.6 + (grappleDist - new PVector(pos.x - (parent.x + parent.sizeX / 2), pos.y - (parent.y + parent.sizeY / 2)).mag()),
+        parent.x + parent.sizeX / 2, parent.y + parent.sizeY / 2);
+    }
+  }
+  
+  void breakGrapple() {
+    state = -1;
+    grappleDist = -1;
   }
 }

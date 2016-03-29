@@ -5,7 +5,10 @@ import java.lang.Math;
 class Character extends MovingRect {
   int queuedWeapon;
   Weapon currentWeapon;
-  Weapon[] weapons = new Weapon[] {new Katana(this), new Tanto(this)};
+  Weapon[] weapons = new Weapon[] {new Katana(this), new Tanto(this), new Kunai(this)};
+  
+  float px;
+  float py;
   
   float animationLeft;
   
@@ -21,6 +24,8 @@ class Character extends MovingRect {
   boolean goRight;
   boolean goUp;
   boolean goDown;
+  
+  Kunai grapple;
   
   float angle;
   
@@ -106,18 +111,36 @@ class Character extends MovingRect {
     queuedWeapon = weapon;
   }
   
+  /**
+   * Does all the updating of movement and stuff.
+   * 200 lines of spaghetti.
+   * TODO: add tomato sauce.
+   */
   void move() {
+    px = x;
+    py = y;
     terminalV = d_terminalV;
     
     vy += gravity * deltaTick;
     
     float accel = accelBase + accelCoeff * abs(vx);
+    if(vx > moveSpeed || vx < -moveSpeed) {
+      accel = 0;
+    }
     if(!collideBot) {
       accel /= 4;
     }
     
     if(goRight && !goLeft) {
-      vx += accel * deltaTick;
+      if(grapple != null && !collideBot && y > grapple.pos.y) {
+        PVector relativePos = new PVector(grapple.pos.x - (x + vx + sizeX / 2), grapple.pos.y - (y + vy + sizeY / 2));
+        relativePos.rotate(HALF_PI);
+        relativePos.setMag(gravity / 4);
+        vx += relativePos.x;
+        vy += relativePos.y;
+      } else {
+        vx += accel * deltaTick;
+      }
       
       if(collideRight) {
         if(!goDown) {
@@ -148,7 +171,13 @@ class Character extends MovingRect {
           }
         }
       }
-    } else if(vx > 0) {
+      if(vx > moveSpeed) {
+        if(collideBot) {
+          vx -= 1 * deltaTick;
+        }
+        vx -= 0.02 * deltaTick;
+      }
+    } else if(vx > 0 && (grapple == null || collideBot)) {
       if(collideBot) {
         vx -= 3 * deltaTick;
       }
@@ -157,7 +186,15 @@ class Character extends MovingRect {
     }
     
     if(goLeft && !goRight) {
-      vx -= accel * deltaTick;
+      if(grapple != null && !collideBot && y > grapple.pos.y) {
+        PVector relativePos = new PVector(grapple.pos.x - (x + vx + sizeX / 2), grapple.pos.y - (y + vy + sizeY / 2));
+        relativePos = relativePos.rotate(-HALF_PI);
+        relativePos = relativePos.setMag(gravity / 4);
+        vx += relativePos.x;
+        vy += relativePos.y;
+      } else {
+        vx -= accel * deltaTick;
+      }
       
       if(collideLeft) {
         if(!goDown) {
@@ -188,7 +225,14 @@ class Character extends MovingRect {
           }
         }
       }
-    } else if(vx < 0) {
+      
+      if(vx < -moveSpeed) {
+        if(collideBot) {
+          vx += 1 * deltaTick;
+        }
+        vx += 0.02 * deltaTick;
+      }
+    } else if(vx < 0 && (grapple == null || collideBot)) {
       if(collideBot) {
         vx += 3 * deltaTick;
       }
@@ -203,7 +247,16 @@ class Character extends MovingRect {
       if(justJumped) {
         float a = (-1 + sqrt(3)) / 2;
         float correction = gravity * ((0.5 / (1 + a + vy / jumpV)) - a) * 0.9;
-        vy -= correction * deltaTick; //<>// //<>//
+        vy -= correction * deltaTick; //<>//
+      }
+      if(grapple != null) {
+        grapple.grappleDist -= 4;
+      }
+    }
+    
+    if(goDown) {
+      if(grapple != null) {
+        grapple.grappleDist += 8;
       }
     }
     
@@ -212,9 +265,9 @@ class Character extends MovingRect {
         terminalV = slideV;
         
         Platform thePlatform = new Platform(x, Float.MAX_VALUE, 0);
-        for(Box box : getCollisions(false)) { //<>// //<>//
+        for(Box box : getCollisions(false)) { //<>//
           if(!(box instanceof Platform)) {
-            continue; //<>// //<>//
+            continue; //<>//
           }
           if(box.y < thePlatform.y) {
             thePlatform = (Platform)box;
@@ -223,7 +276,7 @@ class Character extends MovingRect {
          
         if(y + min(vy, terminalV) * deltaTick > thePlatform.y) {
           y = thePlatform.y;
-          vy = 0; //<>// //<>//
+          vy = 0; //<>//
         }
         
         if(vy > -climbV && goUp) {
@@ -232,8 +285,20 @@ class Character extends MovingRect {
       }
     }
     
-    vx = constrain(vx, -moveSpeed, moveSpeed);
+    /*if(grapple == null) {
+      vx = constrain(vx, -moveSpeed, moveSpeed);
+    }*/
     vy = min(vy, terminalV);
+    
+    if(grapple != null) {
+      PVector relativePos = new PVector((x + vx + sizeX / 2) - grapple.pos.x, (y + vy + sizeY / 2) - grapple.pos.y);
+      PVector newRelativePos = relativePos;
+      if(relativePos.mag() > grapple.grappleDist) {
+        newRelativePos = relativePos.copy().setMag(grapple.grappleDist);
+      }
+      vx -= PVector.sub(relativePos, newRelativePos).x;
+      vy -= PVector.sub(relativePos, newRelativePos).y;
+    }
     
     processCollisions(getCollisions());
     
@@ -334,6 +399,15 @@ class Character extends MovingRect {
         if(box.y == y + sizeY && rightX != 0 && leftX != 0) {
           collideBot = true;
         }
+      }
+    }
+  }
+  
+  void breakGrapple() {
+    grapple = null;
+    for(Weapon weapon : weapons) {
+      if(weapon instanceof Kunai) {
+        ((Kunai)(weapon)).breakGrapple();
       }
     }
   }
