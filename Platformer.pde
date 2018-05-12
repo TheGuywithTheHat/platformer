@@ -7,6 +7,8 @@ long deltaTime;
 int tickRate = 60;
 float deltaTick;
 
+float cameraScale = 1;
+
 Game game;
 
 float screenXOffset;
@@ -17,7 +19,7 @@ void setup() {
   textAlign(LEFT, TOP);
   
   setupInput();
-  game = new Game();
+  game = new ChaseRunGame();
   currentTime = millis();
 }
 
@@ -33,6 +35,8 @@ void draw() {
 }
 
 void update() {
+  //gravity = d_gravity * (2 * noise(frameCount * 0.1) - 1);
+  
   game.update();
   
   for(int i = 0; i < particles.size(); i++) {
@@ -44,8 +48,8 @@ void update() {
 }
 
 void render() {
-  scale(0.5);
-  translate(-player.x + (width * 2 - player.sizeX) / 2, -player.y + (height * 2 - player.sizeY) / 2);
+  scale(cameraScale);
+  translate(-player.x + (width / cameraScale - player.sizeX) / 2, -player.y + (height / cameraScale - player.sizeY) / 2);
   background(0);
   fill(255);
   noStroke();

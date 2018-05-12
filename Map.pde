@@ -1,11 +1,11 @@
 Box[] map;
 ArrayList<Particle> particles;
 
-final float mapSizeX = 4000;
-final float mapSizeY = 2000;
+final float mapSizeX = 2000;
+final float mapSizeY = 1000;
 
 void setupMap() {
-  /*map = new Box[] {
+ map = new Box[] {
       new Box(0, 0, mapSizeX, 0),
       new Box(0, 0, 0, mapSizeY),
       new Box(0, mapSizeY, mapSizeX, 0),
@@ -25,9 +25,9 @@ void setupMap() {
       new Box(1100, 250, 400, 20),
       new Box(1500, 250, 20, 500),
       new Box(1700, 250, 20, 500)
-    };*/
+    };
     
-    map = new Box[] {
+    /*map = new Box[] {
       new Box(0, 0, mapSizeX, 0),
       new Box(0, 0, 0, mapSizeY),
       new Box(0, mapSizeY, mapSizeX, 0),
@@ -40,7 +40,7 @@ void setupMap() {
       new Box(2000, 800, 60, 60),
       new Box(2200, 500, 400, 20),
       new Box(3400, 500, 20, 500)
-    };
+    };*/
   
   particles = new ArrayList(0);
 }

@@ -16,8 +16,8 @@ abstract class Weapon {
       return;
     }
     
-    attackX = screenXOffset + mouseX - (parent.x + parent.sizeX / 2);
-    attackY = screenYOffset + mouseY - (parent.y + parent.sizeY / 2);
+    attackX = screenXOffset + mouseX - parent.centerX();
+    attackY = screenYOffset + mouseY - parent.centerY();
   }
   
   @SuppressWarnings("unused")
@@ -52,8 +52,8 @@ abstract class LineWeapon extends Weapon {
    * @param damage The amount of damage to deal
    */
   void attack(float damage) {
-    float startX = parent.x + parent.sizeX / 2;
-    float startY = parent.y + parent.sizeY / 2;
+    float startX = parent.centerX();
+    float startY = parent.centerY();
     float endX = startX + location.x;
     float endY = startY + location.y;
     
@@ -99,8 +99,8 @@ class Katana extends LineWeapon {
       pushMatrix();
         noStroke();
         fill(0);
-        
-        translate(parent.x + parent.sizeX / 2, parent.y + parent.sizeY / 2); //<>//
+         //<>//
+        translate(parent.centerX(), parent.centerY()); //<>// //<>//
         rotate(atan2(location.y, location.x)); //<>//
         
         rect(0, -2, location.mag(), 4);
@@ -142,7 +142,7 @@ class Katana extends LineWeapon {
     }
   }
   
-  @Override
+  @Override //<>//
   public boolean canAct(int action) { //<>//
     if(!super.canAct(action)) {
       return false;
@@ -209,11 +209,24 @@ class Tanto extends Weapon {
   }
 }
 
+enum KunaiState {
+  INACTIVE(false),
+  MOVING(true),
+  GRAPPLED(true);
+  
+  boolean drawn;
+  
+  private KunaiState(boolean drawn) {
+    this.drawn = drawn;
+  }
+}
+
 class Kunai extends Weapon {
+  
   PVector pos;
   PVector velocity;
   
-  int state = -1; // -1 = nothing, 0 = moving, 1 = grappled
+  KunaiState state = KunaiState.INACTIVE;
   float grappleDist = -1;
   
   Kunai(Character parent) {
@@ -227,47 +240,64 @@ class Kunai extends Weapon {
     super.action(action);
     if(action == 0) {
       parent.breakGrapple();
-      state = 0;
-      pos = new PVector(parent.x + parent.sizeX / 2, parent.y + parent.sizeY / 2);
-      velocity = new PVector(attackX, attackY).setMag(40);
+      state = KunaiState.MOVING;
+      pos = new PVector(parent.centerX(), parent.centerY());
+      velocity = new PVector(attackX, attackY).setMag(80);
     } else if(action == 1) {
       parent.breakGrapple();
     }
   }
   
   void update() {
-    if(state == 0) {
+    if(state == KunaiState.MOVING) {
       for(Box box : map) {
         PVector intersection = box.getLineIntersection(pos.x, pos.y, pos.x + velocity.x, pos.y + velocity.y);
         if(intersection != null) {
-          state = 1;
+          state = KunaiState.GRAPPLED;
           pos = intersection;
           parent.grapple = this;
-          grappleDist = new PVector(pos.x - (parent.x + parent.sizeX / 2), pos.y - (parent.y + parent.sizeY / 2)).mag();
+          grappleDist = new PVector(pos.x - parent.centerX(), pos.y - parent.centerY()).mag();
           spawnParticles(intersection.x, intersection.y, 0, 0, box.fillColor, 10);
         }
       }
-      if(state == 0) {
+      if(state == KunaiState.MOVING) {
         pos.add(velocity);
       }
     }
   }
   
   void draw() {
-    if(state != -1) {
+    if(state.drawn) {
       stroke(0);
       strokeWeight(2);
-      //line(pos.x, pos.y, parent.x + parent.sizeX / 2, parent.y + parent.sizeY / 2);
       noFill();
+      float slack = grappleDist - new PVector(pos.x - parent.centerX(), pos.y - parent.centerY()).mag();
+      if(state == KunaiState.MOVING) {
+        slack = 0;
+      }
       bezier(pos.x, pos.y,
-        pos.x + (parent.x + parent.sizeX / 2 - pos.x) * 0.4, pos.y + (parent.y + parent.sizeY / 2 - pos.y) * 0.4 + (grappleDist - new PVector(pos.x - (parent.x + parent.sizeX / 2), pos.y - (parent.y + parent.sizeY / 2)).mag()),
-        pos.x + (parent.x + parent.sizeX / 2 - pos.x) * 0.6, pos.y + (parent.y + parent.sizeY / 2 - pos.y) * 0.6 + (grappleDist - new PVector(pos.x - (parent.x + parent.sizeX / 2), pos.y - (parent.y + parent.sizeY / 2)).mag()),
-        parent.x + parent.sizeX / 2, parent.y + parent.sizeY / 2);
+        pos.x + (parent.centerX() - pos.x) * 0.4, pos.y + (parent.centerY() - pos.y) * 0.4 + slack,
+        pos.x + (parent.centerX() - pos.x) * 0.6, pos.y + (parent.centerY() - pos.y) * 0.6 + slack,
+        parent.centerX(), parent.centerY());
     }
   }
   
   void breakGrapple() {
-    state = -1;
+    state = KunaiState.INACTIVE;
     grappleDist = -1;
+  }
+  
+  void reelIn() {
+    grappleDist -= 4;
+    constrainGrapple();
+  }
+  
+  void reelOut() {
+    grappleDist += 8;
+    constrainGrapple();
+  }
+  
+  void constrainGrapple() {
+    grappleDist = max(grappleDist, 0);
   }
 }

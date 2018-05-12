@@ -12,6 +12,14 @@ class Rect {
     fillColor = color(0);
   }
   
+  float centerX() {
+    return x + sizeX / 2;
+  }
+  
+  float centerY() {
+    return y + sizeY / 2;
+  }
+  
   boolean collides(Rect other) {
     float x1 = x;
     float y1 = y;

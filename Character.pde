@@ -23,6 +23,7 @@ class Character extends MovingRect {
   boolean goLeft;
   boolean goRight;
   boolean goUp;
+  boolean reelIn;
   boolean goDown;
   
   Kunai grapple;
@@ -70,7 +71,7 @@ class Character extends MovingRect {
   
   void wallJump(float scale) {
     vy = min(-jumpV * 0.9, vy);
-    vx = jumpV * 2.2 * scale;
+    vx = jumpV * 1.0 * scale;
     float sign = Math.signum(scale);
     spawnParticles((x + sizeX / 2) - (sizeX / 2 * sign), y + sizeY, 2 * sign, 0, color(64), 6);
   }
@@ -97,6 +98,12 @@ class Character extends MovingRect {
   void draw() {
     super.draw();
     currentWeapon.draw();
+    
+    for(Weapon weapon : weapons) {
+      if(weapon instanceof Kunai && weapon != currentWeapon) {
+        weapon.draw();
+      }
+    }
   }
   
   void stun(float duration) {
@@ -133,7 +140,7 @@ class Character extends MovingRect {
     
     if(goRight && !goLeft) {
       if(grapple != null && !collideBot && y > grapple.pos.y) {
-        PVector relativePos = new PVector(grapple.pos.x - (x + vx + sizeX / 2), grapple.pos.y - (y + vy + sizeY / 2));
+        PVector relativePos = new PVector(grapple.pos.x - (centerX() + vx), grapple.pos.y - (centerY() + vy));
         relativePos.rotate(HALF_PI);
         relativePos.setMag(gravity / 4);
         vx += relativePos.x;
@@ -187,7 +194,7 @@ class Character extends MovingRect {
     
     if(goLeft && !goRight) {
       if(grapple != null && !collideBot && y > grapple.pos.y) {
-        PVector relativePos = new PVector(grapple.pos.x - (x + vx + sizeX / 2), grapple.pos.y - (y + vy + sizeY / 2));
+        PVector relativePos = new PVector(grapple.pos.x - (centerX() + vx), grapple.pos.y - (centerY() + vy));
         relativePos = relativePos.rotate(-HALF_PI);
         relativePos = relativePos.setMag(gravity / 4);
         vx += relativePos.x;
@@ -202,7 +209,7 @@ class Character extends MovingRect {
           if(vy > 0 && random(1) < 0.2) {
             spawnParticle(x, y + sizeY, 2, vy, color(64));
           }
-        }
+        } //<>//
       
         if(goUp && !collideBot) {
           wallJump(1);
@@ -211,9 +218,9 @@ class Character extends MovingRect {
           
           for(Box box : getCollisions(false)) {
             if(box.x + box.sizeX == x && box.y < theBox.y) {
-              theBox = box;
+              theBox = box; //<>//
             }
-          }
+          } //<>//
           
           if(!pointCollides(x - sizeX * 0.1, theBox.y - sizeY * 0.1) && y <= theBox.y) {
             if(new Rect(x - sizeX * 0.1, theBox.y - sizeY, sizeX, sizeY).getIntersections().size() == 0) {
@@ -222,7 +229,7 @@ class Character extends MovingRect {
               y = theBox.y;
               vy = 0;
             }
-          }
+          } //<>//
         }
       }
       
@@ -249,14 +256,17 @@ class Character extends MovingRect {
         float correction = gravity * ((0.5 / (1 + a + vy / jumpV)) - a) * 0.9;
         vy -= correction * deltaTick; //<>//
       }
+    }
+    
+    if(reelIn) {
       if(grapple != null) {
-        grapple.grappleDist -= 4;
+        grapple.reelIn();
       }
     }
     
     if(goDown) {
       if(grapple != null) {
-        grapple.grappleDist += 8;
+        grapple.reelOut();
       }
     }
     
@@ -407,7 +417,7 @@ class Character extends MovingRect {
     grapple = null;
     for(Weapon weapon : weapons) {
       if(weapon instanceof Kunai) {
-        ((Kunai)(weapon)).breakGrapple();
+        ((Kunai)weapon).breakGrapple();
       }
     }
   }

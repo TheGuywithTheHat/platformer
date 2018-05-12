@@ -29,7 +29,7 @@ class Particle extends MovingRect {
     vx *= 0.98;
     vy += gravity / 2 * deltaTick;
     super.move();
-    if(x < -sizeX || x > mapSizeX + sizeX || y > mapSizeY + sizeY) {
+    if(x < -sizeX || x > mapSizeX + sizeX || y < -sizeY || y > mapSizeY + sizeY) {
       particles.remove(this);
     }
   }

@@ -18,6 +18,12 @@ class Player extends Character {
       goUp = false;
     }
     
+    if(getKey(controls.up)) {
+      reelIn = true;
+    } else {
+      reelIn = false;
+    }
+    
     if(getKey(controls.down)) {
       goDown = true;
     } else {
